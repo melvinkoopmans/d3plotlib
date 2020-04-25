@@ -1,22 +1,17 @@
 import * as d3 from 'd3';
+import Baseplot from './Baseplot';
 
-class Barplot {
-    private svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-
-    private width: number;
-
-    private height: number;
-
-    private config: {
+class Barplot extends Baseplot {
+    protected config: {
         isHorizontal: boolean,
         yLabel: string | null,
+        colors: string[],
         margin: {
             top: number,
             right: number,
             bottom: number,
             left: number
         },
-        color: string,
         xAccessor: string | null,
         yAccessor: string | null,
     } = {
@@ -28,28 +23,14 @@ class Barplot {
             bottom: 20,
             left: 60,
         },
-        color: '#000',
+        colors: [],
         xAccessor: null,
         yAccessor: null
     }
 
-    constructor(selector: string, width: number, height: number) {
-        const { margin } = this.config;
-
-        this.svg = d3.select(selector)
-            .append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        this.width = width;
-        this.height = height;
-    }
-
     plot(data: any, x: string, y: string): void {
         const { height } = this;
-        const { isHorizontal, yLabel, margin, color } = this.config;
+        const { isHorizontal, yLabel, margin, colors } = this.config;
 
         this.config.xAccessor = isHorizontal ? x : x;
         this.config.yAccessor = isHorizontal ? y : y;
@@ -61,8 +42,10 @@ class Barplot {
 
         const { xScale } = this.getXAxis(data);
         if (isHorizontal) {
-            this.addVerticalGridlines(xScale);
+            this.addVerticalGridlines(xScale, x);
         }
+
+        const color = this.getColorScheme(xScale);
 
         if (yLabel) {
             this.svg.append('text')
@@ -82,7 +65,7 @@ class Barplot {
                 .attr('y', (d: any) => yScale(d[x]))
                 .attr('height', yScale.bandwidth()) 
                 .attr('width', 0)
-                .attr('fill', color)
+                .attr('fill', (d: any) => color(d[x]))
                 .transition().ease(d3.easeElastic).delay(700).duration(1250)
                 .attr('width', (d: any) => xScale(d[y]) - 1);
         } else {
@@ -92,7 +75,7 @@ class Barplot {
                 .attr('y', height)
                 .attr('width', xScale.bandwidth())
                 .attr('height', 0)
-                .attr('fill', color)
+                .attr('fill', (d: any) => color(d[x]))
                 .transition().ease(d3.easeElastic).delay(700).duration(1250)
                 .attr('y', (d: any) => yScale(d[y])!)
                 .attr('height', (d: any) => height - yScale(d[y])!);
@@ -104,17 +87,12 @@ class Barplot {
         return this;
     }
 
-    color(color: string): Barplot {
-        this.config.color = color;
-        return this;
-    }
-
     yLabel(label: string): Barplot {
         this.config.yLabel = label;
         return this;
     }
 
-    private getXAxis(data: any) {
+    protected getXAxis(data: any) {
         const { isHorizontal, xAccessor, yAccessor } = this.config;
         let xScale: any;
 
@@ -138,7 +116,7 @@ class Barplot {
         return { xAxis, xScale };
     }
 
-    private getYAxis(data: any) {
+    protected getYAxis(data: any) {
         const { isHorizontal, xAccessor, yAccessor } = this.config;
         let yScale: any;
 
@@ -158,36 +136,6 @@ class Barplot {
             .call(yAxis);
 
         return { yAxis, yScale };
-    }
-
-    private addHorizontalGridlines(yScale: d3.ScaleBand<string>) {
-        const yAxis = d3.axisLeft(yScale);
-        const g = this.svg.append('g')			
-            .attr('class', 'grid')
-            .call(yAxis.tickSize(-this.width).tickFormat(() => ''));
-
-
-        g.selectAll('line')
-            .attr('transform', 'translate(1, 0)')
-            .attr('stroke', '#DDD');
-
-        g.selectAll('path').remove();
-    }
-
-    private addVerticalGridlines(xScale: any) {
-        const { xAccessor } = this.config;
-        const xAxis = d3.axisBottom(xScale);
-        const g = this.svg.append('g')
-            .attr('class', 'grid')
-            .call(xAxis.tickSize(this.height).tickFormat(() => ''));
-
-        g.selectAll('line')
-            .attr('x', (d: any) => xScale(d[xAccessor!]))
-            .attr('stroke', '#DDD')
-        
-        g.selectAll('.tick:first-of-type').remove();
-
-        g.selectAll('path').remove();
     }
 }
 
