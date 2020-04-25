@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { ScaleOrdinal } from 'd3';
 import Baseplot from './Baseplot';
 
 class GroupedBarplot extends Baseplot {
@@ -18,6 +17,12 @@ class GroupedBarplot extends Baseplot {
         const yAxis = this.svg.append('g')
             .attr('transform', 'translate(5, 0)')
             .call(d3.axisLeft(yScale));
+
+        if (!this.isAutoAdjusted) {
+            this.autoAdjust(yAxis);
+            this.plot(data, groupBy, subgroups);
+            return;
+        }
         
         yAxis.selectAll('path').remove();
         yAxis.selectAll('line').remove();
