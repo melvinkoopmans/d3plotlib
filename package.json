@@ -1,0 +1,22 @@
+{
+  "name": "d3plotlib",
+  "version": "0.0.0",
+  "description": "High-level API on top of D3.js for creating plots and data visualisations",
+  "main": "dist/index.js",
+  "types": "dist/",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/melvinkoopmans/d3plotlib.git"
+  },
+  "author": "Melvin Koopmans",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/melvinkoopmans/d3plotlib/issues"
+  },
+  "homepage": "https://github.com/melvinkoopmans/d3plotlib#readme",
+  "dependencies": {
+    "@types/d3": "^5.7.2",
+    "d3": "^5.16.0"
+  }
+}
