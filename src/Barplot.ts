@@ -27,9 +27,14 @@ class Barplot extends Baseplot {
             this.plot(data, x, y);
             return;
         }
+
+        yAxis.selectAll('.tick line').remove();
   
         if (!isHorizontal) {
             this.addHorizontalGridlines(yScale);
+            yAxis.selectAll('path').remove();
+        } else {
+            yAxis.selectAll('path').attr('stroke', '#DDD')
         }
 
         const { xScale } = this.getXAxis(data);
@@ -98,8 +103,16 @@ class Barplot extends Baseplot {
         }
     
         const xAxis = this.svg.append("g")
-            .attr("transform", "translate(0," + this.height + ")")
+            .attr("transform", `translate(0, ${this.height})`)
             .call(d3.axisBottom(xScale as any));
+
+        if (isHorizontal) {
+            xAxis.selectAll('path').remove();
+        } else {
+            xAxis.selectAll('path').attr('stroke', '#DDD');
+        }
+        xAxis.selectAll('.tick line').remove();
+        xAxis.selectAll('.tick text').attr('transform', 'translate(0, -3)');
 
         return { xAxis, xScale };
     }

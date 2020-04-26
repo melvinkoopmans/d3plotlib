@@ -142,6 +142,7 @@ abstract class Baseplot {
             .attr('transform', 'translate(1, 0)')
             .attr('stroke', '#DDD');
 
+        g.selectAll('.tick:first-of-type line').remove();
         g.selectAll('path').remove();
     }
 
@@ -160,8 +161,8 @@ abstract class Baseplot {
         g.selectAll('path').remove();
     }
 
-    protected getColorScheme(domain: string[]) {
-        return d3.scaleOrdinal<string, string>()
+    protected getColorScheme(domain: (string | number)[]) {
+        return d3.scaleOrdinal<string | number, string>()
             .domain(domain)
             .range(this.config.colors);
     }

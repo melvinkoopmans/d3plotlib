@@ -33,10 +33,12 @@ class GroupedBarplot extends Baseplot {
             .range([0, this.width])
             .padding(0.2);
     
-        const xAxis = d3.axisBottom(xScale).tickSize(0);
-        this.svg.append('g')
+        const xAxis = this.svg.append('g')
             .attr('transform', `translate(0, ${this.height})`)
-            .call(xAxis);
+            .call(d3.axisBottom(xScale).tickSize(0));
+
+        xAxis.selectAll('path').attr('stroke', '#DDD');
+        xAxis.selectAll('.tick text').attr('transform', 'translate(0, 2)');
 
         const xSubgroup = d3.scaleBand()
             .domain(subgroups)

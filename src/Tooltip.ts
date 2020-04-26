@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 
 type TooltipMouseEvent = (this: SVGRectElement, d: unknown) => void;
 
-export type TooltipFormatter = (d: unknown) => string;
+export type TooltipFormatter = (d: any) => string;
 
 class Tooltip {
     private selector: string;
