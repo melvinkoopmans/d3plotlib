@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import Tooltip, { TooltipFormatter } from './Tooltip';
 
 abstract class Baseplot {
     protected svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
@@ -19,6 +20,7 @@ abstract class Baseplot {
             bottom: number,
             left: number
         },
+        tooltip: Tooltip | null,
     } = {
         yLabel: null,
         xLabel: null,
@@ -29,6 +31,7 @@ abstract class Baseplot {
             bottom: 20,
             left: 60,
         },
+        tooltip: null,
     }
 
     protected isAutoAdjusted: boolean = false;
@@ -53,6 +56,11 @@ abstract class Baseplot {
 
     xLabel(label: string): this {
         this.config.xLabel = label;
+        return this;
+    }
+
+    tooltip(formatter: TooltipFormatter): this {
+        this.config.tooltip = new Tooltip(this.selector, formatter);
         return this;
     }
 
@@ -83,6 +91,7 @@ abstract class Baseplot {
                 .attr('font-size', '12px')
                 .style('text-anchor', 'middle');
         }
+        
 
         if (xLabel) {
             svg.append('text')
@@ -97,17 +106,27 @@ abstract class Baseplot {
         return svg;
     }
 
-    protected autoAdjust(yAxis: d3.Selection<SVGGElement, unknown, HTMLElement, any>) {
+    protected getTooltip(): Tooltip | null {
+        return this.config.tooltip;
+    }
+
+    protected autoAdjust(yAxis: d3.Selection<SVGGElement, unknown, HTMLElement, any>, side: 'left' | 'right' = 'left') {
         const { margin, yLabel } = this.config;
 
         const yLabelsMaxWidth = parseInt(
             d3.max(yAxis.selectAll('g').nodes()
                 .map((node: any) => node.getBoundingClientRect().width)
             ));
-        const indent = yLabelsMaxWidth - margin.left + (yLabel ? 20 : 0);
+
+        const indent = yLabelsMaxWidth - (side === 'left' ? margin.left : margin.right) + (yLabel ? 20 : 0);
 
         this.width -= indent;
-        this.config.margin.left += indent;
+
+        if (side === 'left') {
+            this.config.margin.left += indent;
+        } else {
+            this.config.margin.right += indent;
+        }
         this.isAutoAdjusted = true;
         this.svg = this.buildSvg();
     }
