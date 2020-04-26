@@ -3,6 +3,7 @@ import Baseplot from './Baseplot';
 
 class GroupedBarplot extends Baseplot {
     plot(data: any, groupBy: string, subgroups: string[]) {
+        const { tooltip } = this.config;
         const groups = d3.map(data, (d: any) => d[groupBy]).keys();
 
         const yScale = d3.scaleLinear()
@@ -44,7 +45,7 @@ class GroupedBarplot extends Baseplot {
 
         const color = this.getColorScheme(subgroups);
         
-        this.svg.append('g')
+        const bars: d3.Selection<SVGRectElement, {key: string, value: any }, SVGGElement, unknown> = this.svg.append('g')
             .selectAll('g')
             .data(data)
             .enter()
@@ -57,10 +58,18 @@ class GroupedBarplot extends Baseplot {
                 .attr('y', this.height)
                 .attr('width', xSubgroup.bandwidth())
                 .attr('height', 0)
-                .attr('fill', (d) => color(d.key))
-                .transition().ease(d3.easeElastic).delay(700).duration(1250)
-                .attr('y', (d) => yScale(d.value))
-                .attr('height', (d) => this.height - yScale(d.value));
+                .attr('fill', (d) => color(d.key));
+        
+        bars.transition().ease(d3.easeElastic).duration(1250)
+            .attr('y', (d) => yScale(d.value))
+            .attr('height', (d) => this.height - yScale(d.value));
+
+        if (tooltip) {
+            bars
+                .on('mouseover', tooltip.getOverHandler())
+                .on('mouseleave', tooltip.getLeaveHandler())
+                .on('mousemove', tooltip.getMoveHandler((d: any) => d.value));
+        }
     }
 } 
 

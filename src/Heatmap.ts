@@ -86,7 +86,7 @@ class Heatmap extends Baseplot {
                 })
 
         if (tooltip) {
-            tiles.on('mousemove', tooltip.getMoveHandler((d: any) => d.value, 15)); 
+            tiles.on('mousemove', tooltip.getMoveHandler((d: any) => d.value)); 
         }
 
         tiles.transition()
