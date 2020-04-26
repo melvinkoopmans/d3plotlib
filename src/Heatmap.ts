@@ -71,13 +71,22 @@ class Heatmap extends Baseplot {
                 .attr('y', (d: any) => yScale(d.group)!)
                 .attr('width', xScale.bandwidth())
                 .attr('height', yScale.bandwidth())
-                .attr('fill', '#000');
+                .attr('fill', '#000')
+                .on('mouseover', function(d: unknown) {
+                    if (tooltip) {
+                        tooltip.getOverHandler().bind(this)(d);
+                    }
+                    d3.select(this).attr('stroke', '#000');
+                })
+                .on('mouseleave', function(d: unknown) {
+                    if (tooltip) {
+                        tooltip.getLeaveHandler().bind(this)(d);
+                    }
+                    d3.select(this).attr('stroke', null);
+                })
 
         if (tooltip) {
-            tiles
-                .on('mouseover', tooltip.getOverHandler())
-                .on('mouseleave', tooltip.getLeaveHandler())
-                .on('mousemove', tooltip.getMoveHandler()); 
+            tiles.on('mousemove', tooltip.getMoveHandler((d: any) => d.value, 15)); 
         }
 
         tiles.transition()

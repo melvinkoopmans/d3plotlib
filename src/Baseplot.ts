@@ -59,7 +59,7 @@ abstract class Baseplot {
         return this;
     }
 
-    tooltip(formatter: TooltipFormatter): this {
+    tooltip(formatter: TooltipFormatter | null = null): this {
         this.config.tooltip = new Tooltip(this.selector, formatter);
         return this;
     }
