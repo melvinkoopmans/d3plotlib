@@ -140,7 +140,8 @@ abstract class Baseplot {
 
         g.selectAll('line')
             .attr('transform', 'translate(1, 0)')
-            .attr('stroke', '#DDD');
+            .attr('stroke', '#DDD')
+            .attr('stroke-dasharray', '2,2');
 
         g.selectAll('.tick:first-of-type line').remove();
         g.selectAll('path').remove();
