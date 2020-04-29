@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
-import Baseplot from './Baseplot';
+import BaseChart from './BaseChart';
 
-class Histogram extends Baseplot {
+class Histogram extends BaseChart {
     private histogramConfig: {
         bins: number,
     } = {

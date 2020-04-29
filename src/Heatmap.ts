@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
-import Baseplot from './Baseplot';
+import BaseChart from './BaseChart';
 
-class Heatmap extends Baseplot {
+class Heatmap extends BaseChart {
     heatmapConfig: {
         ticksEvery: number | null,
     } = {

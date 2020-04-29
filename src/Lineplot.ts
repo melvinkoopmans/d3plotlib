@@ -5,12 +5,12 @@ import {
     mouse, Selection
 } from 'd3';
 import { extent } from 'd3-array';
-import Baseplot from './Baseplot';
+import BaseChart from './BaseChart';
 
 type DataPoint = [number, number];
 type Dataset = DataPoint[];
 
-class Lineplot extends Baseplot {
+class Lineplot extends BaseChart {
     private lineConfig: {
         loaded: boolean,
         xScale: ScaleLinear<number, number> | null,

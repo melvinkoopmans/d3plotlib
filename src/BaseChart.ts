@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import Tooltip, { TooltipFormatter } from './Tooltip';
 
-abstract class Baseplot {
+abstract class BaseChart {
     protected svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
 
     protected selector: string;
@@ -169,4 +169,4 @@ abstract class Baseplot {
     }
 }
 
-export default Baseplot;
+export default BaseChart;

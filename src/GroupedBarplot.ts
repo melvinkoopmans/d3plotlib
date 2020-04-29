@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
-import Baseplot from './Baseplot';
+import BaseChart from './BaseChart';
 
-class GroupedBarplot extends Baseplot {
+class GroupedBarplot extends BaseChart {
     plot(data: any, groupBy: string, subgroups: string[]) {
         const { tooltip } = this.config;
         const groups = d3.map(data, (d: any) => d[groupBy]).keys();
