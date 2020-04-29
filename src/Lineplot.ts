@@ -74,7 +74,7 @@ class Lineplot extends Baseplot {
         if (!this.datasets.find((d) => d.category === category)) {
             this.datasets.push({
                 data, category, color
-            })
+            });
         }
 
         const xDomain = xScale?.domain()!;
@@ -140,6 +140,13 @@ class Lineplot extends Baseplot {
             ruler.attr('x1', x).attr('x2', x);
             let tooltip = '';
 
+            type TooltipPoint = {
+                y: number,
+                category: string | null,
+                color: string | null,
+            }
+            const tooltipPoints: TooltipPoint[] = [];
+
             datasets.forEach((dataset, i) => {
                 const closestPoint = dataset.data
                     .sort((a: DataPoint, b: DataPoint) => {
@@ -150,8 +157,20 @@ class Lineplot extends Baseplot {
                     .attr('cx', xScale!(closestPoint[0]))
                     .attr('cy', yScale!(closestPoint[1]));
 
-                tooltip += `<div class="tooltip-legend" style="background: ${dataset.color}"></div> ${dataset.category}: ${closestPoint[1].toFixed(1)}<br>`;
+                tooltipPoints.push({
+                    y: closestPoint[1],
+                    category: dataset.category,
+                    color: dataset.color,
+                })
             })
+
+            tooltipPoints
+                .sort((a: TooltipPoint, b: TooltipPoint) => {
+                    return b.y > a.y ? 1 : 0;
+                })
+                .forEach((point) => {
+                    tooltip += `<div class="tooltip-legend" style="background: ${point.color}"></div> ${point.category}: ${point.y.toFixed(1)}<br>`;
+                })
 
             rulerTooltip
                 .style('transform', `translate(${x + 60}px, ${y}px)`)
