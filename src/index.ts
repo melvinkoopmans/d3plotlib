@@ -5,9 +5,10 @@ import Histogram from './Histogram';
 import Lineplot from './Lineplot';
 import PieChart from './PieChart';
 import Boxplot from './Boxplot';
+import TimeSeries from './TimeSeries';
 
 export {
     Barplot, GroupedBarplot, Heatmap, 
     Histogram, Lineplot, PieChart,
-    Boxplot,
+    Boxplot, TimeSeries,
 }
