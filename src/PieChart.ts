@@ -30,7 +30,7 @@ class PieChart {
             .endAngle(2*Math.PI)
             (data)
 
-        const arcMaker = d3.arc().innerRadius(0).outerRadius(width / 2).cornerRadius(0);
+        const arc = d3.arc().innerRadius(0).outerRadius(width / 2).cornerRadius(0);
 
         const color = d3.scaleOrdinal(d3.schemeTableau10)
             .domain(pie.map((d: any) => d.index));
@@ -43,17 +43,17 @@ class PieChart {
             .attr('stroke', '#DDD')
             .transition().duration(1300).ease(d3.easeCubicInOut)
             .attrTween('d', function(d: any) {
-                var i = d3.interpolate({startAngle: 0, endAngle: 0}, d);
-                // var i = d3.interpolate(d.startAngle, d.endAngle);
+                var i = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+
                 return function(t: number) {
-                    return arcMaker(i(t))!;
+                    return arc(i(t))!;
                 }
             }); 
 
         g.selectAll('text').data(pie).enter().append('text')
             .text((d: any) => d.data[category])
-            .attr('x', (d: any) => arcMaker.innerRadius(this.width / 5).centroid(d)[0])
-            .attr('y', (d: any) => arcMaker.innerRadius(this.width / 5).centroid(d)[1])
+            .attr('x', (d: any) => arc.innerRadius(this.width / 5).centroid(d)[0])
+            .attr('y', (d: any) => arc.innerRadius(this.width / 5).centroid(d)[1])
             .attr('font-size', 14)
             .attr('text-anchor', 'middle');
     }
