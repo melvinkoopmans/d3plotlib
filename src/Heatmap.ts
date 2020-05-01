@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import BaseChart from './BaseChart';
+import ColorBox from './ColorBox';
 
 class Heatmap extends BaseChart {
     heatmapConfig: {
@@ -10,7 +11,8 @@ class Heatmap extends BaseChart {
 
     constructor(selector: string, width: number, height: number) {
         super(selector, width, height);
-        this.config.margin.left = 0
+        this.config.margin.left = 0;
+        this.config.margin.top = 55;
         this.svg = this.buildSvg();
     }
 
@@ -58,6 +60,9 @@ class Heatmap extends BaseChart {
         const color = d3.scaleLinear<string, number>()
             .range(['#006460', '#A1EFEC'])
             .domain([0, 100]);
+
+        const colorbox = d3.select(this.selector).select('svg').append('g').attr('transform', 'translate(2, 0)');
+        new ColorBox([this.width / 2, 30], color, true).create(colorbox);
 
         const tiles = this.svg.append('g')
             .selectAll('g')
