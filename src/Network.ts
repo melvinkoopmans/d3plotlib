@@ -49,7 +49,7 @@ class Network {
         d3.shuffle(network.edges);
 
         const simulation = d3.forceSimulation<Node, Edge>(network.nodes)
-            .force('link', d3.forceLink<Node, Edge>(network.edges).id((d) => d.id))
+            .force('link', d3.forceLink<Node, Edge>(network.edges).distance(40).id((d) => d.id))
             .force('charge', d3.forceManyBody())
             .force('center', d3.forceCenter(width / 2, height / 2));
 
@@ -69,8 +69,10 @@ class Network {
         const labels = svg.selectAll('text').data(network.nodes).enter()
             .append('text')
             .attr('text-anchor', 'middle')
+            .style('user-select', 'none')
             .attr('font-size', 10)
-            .text((d) => d.id);
+            .text((d) => d.id)
+            .call(this.drag(simulation));
 
         simulation.on('tick', () => {
             edges
@@ -88,7 +90,7 @@ class Network {
     }
 
     drag(simulation: d3.Simulation<Node, Edge>) {
-        return d3.drag<SVGCircleElement, Node>()
+        return d3.drag<any, Node>()
             .on('start', (d: Node) => {
                 if (!d3.event.active) {
                     simulation.alphaTarget(0.3).restart();
