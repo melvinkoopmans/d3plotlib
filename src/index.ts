@@ -6,9 +6,10 @@ import Lineplot from './Lineplot';
 import PieChart from './PieChart';
 import Boxplot from './Boxplot';
 import TimeSeries from './TimeSeries';
+import Network, { NetworkStruct } from './Network';
 
 export {
     Barplot, GroupedBarplot, Heatmap, 
     Histogram, Lineplot, PieChart,
-    Boxplot, TimeSeries,
+    Boxplot, TimeSeries, Network, NetworkStruct
 }
