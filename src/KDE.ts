@@ -1,8 +1,7 @@
 import * as d3 from 'd3';
 import BaseChart from './BaseChart';
 
-type Kernel = ((x:number) => number);
-type KernelFactory = (bandwidth: number) => Kernel;
+type Kernel = (x: number) => number;
 
 class KDE extends BaseChart {
     private kdeConfig: {
@@ -11,53 +10,66 @@ class KDE extends BaseChart {
         bandwidth: 1.0
     };
 
-    plot(data: any, x: string) {
-        const { width, height } = this;
+    private state: {
+        xScale: d3.ScaleLinear<number, number> | null,
+        yScale: d3.ScaleLinear<number, number> | null,
+        thresholds: number[],
+        plotCalls: number,
+    } = {
+        xScale: null,
+        yScale: null,
+        thresholds: [],
+        plotCalls: 0,
+    }
+
+    plot(data: any, x: string, color: string): KDE {
+        const { defs, width, height } = this;
         const { bandwidth } = this.kdeConfig;
-        const bins = 15;
+        let { plotCalls } = this.state;
 
         const xScale = d3.scaleLinear()
             .domain(d3.extent(data, (d: any) => parseInt(d[x])) as [number, number]).nice()
             .range([0, width]);
+        this.state.xScale = xScale;
 
         const thresholds = xScale.ticks(50);
+        this.state.thresholds = thresholds;
 
-        const epanechnikov: KernelFactory = (bandwidth: number) => {
-            return (x: number) => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
+        let kernel = this.kde(this.epanechnikov(bandwidth), this.state.thresholds, data, x);
+        kernel = this.normalize(kernel);
+
+        let domain = [0, d3.max(kernel, (d: any) => d[1])];
+        if (this.state.yScale) {
+            domain = [0, d3.max([domain[1], this.state.yScale.domain()[1]])];
         }
 
-        const kde = (kernel: Kernel, thresholds: number[], data: any) => {
-            return thresholds.map((t) => [t, d3.mean(data, (d: any) => kernel(t - d[x]))]);
-        }
-
-        let kernel = kde(epanechnikov(1), thresholds, data);
-
-        const kernelTotal = d3.sum(kernel, (d) => d[1]);
-        kernel = kernel.map((d) => [d[0], d[1]! / kernelTotal]);
-
-        const yScale = d3.scaleLinear()
-            .domain([0, d3.max(kernel, (d: any) => d[1])])
+        const yScale = d3.scaleLinear()       
+            .domain(domain)
             .range([height, 0]);
+        this.state.yScale = yScale;
 
-        const xAxis = this.svg.append('g')
+        this.svg.selectAll('.axes').remove();
+        
+        this.svg.append('g')
+            .attr('class', 'axes')
             .attr('transform', `translate(0, ${height})`)
             .call(d3.axisBottom(xScale));
 
         const yAxis = this.svg.append('g')
+            .attr('class', 'axes')
             .call(d3.axisLeft(yScale));
 
-        
         if (!this.isAutoAdjusted) {
             this.autoAdjust(yAxis);
-            this.plot(data, x);
-            return;
+            this.plot(data, x, color);
+            return this;
         }
 
         this.addHorizontalGridlines(yScale as any);
 
-        const path = this.svg.append('g').append('path')
-            .attr('d', d3.line().curve(d3.curveBasis).x((d: any) => xScale(d[0])).y((d: any) => yScale(d[1]))(kernel))
-            .attr('fill', 'none').attr('stroke', '#03A49E');
+        this.svg.append('g').append('path')
+            .attr('d', d3.line().curve(d3.curveBasis).x((d: any) => xScale(d[0])).y((d: any) => yScale(d[1]))(kernel)!)
+            .attr('fill', 'none').attr('stroke', color);
 
         const area = d3.area()
             .curve(d3.curveBasis)
@@ -65,9 +77,7 @@ class KDE extends BaseChart {
             .y0(height)
             .y1((d) => yScale(d[1]));
 
-        const defs = d3.select(this.selector).select('svg').append('defs');
-
-        const maskId = `auc-clip-${this.selector.replace('#', '')}`;
+        const maskId = `auc-clip-${this.selector.replace('#', '')}-${plotCalls}`;
         const mask = defs.append('clipPath')
             .attr('id', maskId)
             .append('rect')
@@ -82,14 +92,14 @@ class KDE extends BaseChart {
             .attr('class', 'area')
             .attr('clip-path', `url(#${maskId})`)
             .attr('d', area as any)
-            .attr('fill', '#03A49E')
+            .attr('fill', color)
             .attr('opacity', 0.3);
 
         const text = this.svg.append('text')
             .style('opacity', 0)
             .style('color', '#000')
 
-        const container = this.svg.append('rect')
+        this.svg.append('rect')
             .attr('width', width)
             .attr('height', height)
             .attr('fill', 'transparent')
@@ -97,10 +107,12 @@ class KDE extends BaseChart {
                 text.transition().duration(300).style('opacity', 1);
             })
             .on('mousemove', function() {
+                if (plotCalls > 0) {
+                    return;
+                }
+
                 const [x, y] = d3.mouse(this);
                 mask.attr('width', x);
-
-                const xCenter = x / 2; 
 
                 const percentage = kernel
                     .filter((d) => {
@@ -109,7 +121,7 @@ class KDE extends BaseChart {
                     .reduce((sum, d) => sum + d[1]!, 0);
 
                 text
-                    .attr('x', xCenter)
+                    .attr('x', x / 2)
                     .attr('y', y)
                     .text(`${(percentage * 100).toFixed(1)}%`);
             })
@@ -117,55 +129,28 @@ class KDE extends BaseChart {
                 mask.transition().duration(1000).attr('width', width);
                 text.transition().duration(300).style('opacity', 0);
             });
-        
-        return;
 
+        this.state.plotCalls += 1;
 
-
-        // const xScale = d3.scaleLinear()
-        //     .domain([0, d3.max(data, (d: any) => parseInt(d[x]))!])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
-        //     .range([0, width]);
-
-        const xAxis = this.svg.append('g')
-            .attr('transform', `translate(0, ${height})`)
-            .call(d3.axisBottom(xScale));
-            
-        const histogram = d3.histogram()
-            .value((d: any) => d[x])
-            .domain(xScale.domain() as [number, number])
-            .thresholds(xScale.ticks(bins));
-
-        const histogramBins = histogram(data);
-
-        const yScale = d3.scaleLinear()
-            .range([height, 0])
-            .domain([0, d3.max(histogramBins, (d: d3.Bin<number, number>) => d.length)!]);
-
-        const yAxis = this.svg.append('g')
-            .call(d3.axisLeft(yScale));
-
-        yAxis.selectAll('path').attr('stroke', '#DDD');
-        yAxis.selectAll('.tick line').remove();
-
-        xAxis.selectAll('path').attr('stroke', '#DDD');
-        xAxis.selectAll('.tick line').remove();
-        xAxis.selectAll('.tick text').attr('transform', 'translate(0, -3)');
-
-        const colors = this.getColorScheme(xScale.domain());
-
-        const bars = this.svg.selectAll('rect')
-            .data(histogramBins)
-            .enter()
-            .append('rect')
-                .attr('transform', (d: d3.Bin<number, number>) => `translate(${xScale(d.x0!)}, ${yScale(d.length)})`)
-                .attr('width', (d: d3.Bin<number, number>) => xScale(d.x1!) - xScale(d.x0!) - 1)
-                .attr('height', (d: d3.Bin<number, number>) => height - yScale(d.length))
-                .style('fill', (d: d3.Bin<number, number>) => colors(d.x0!));
+        return this;
     }
 
     bandwidth(bandwidth: number): this {
         this.kdeConfig.bandwidth = bandwidth;
         return this;
+    }
+
+    protected kde(kernel: Kernel, thresholds: number[], data: any, x: string): [number, number][] {
+        return thresholds.map((t) => [t, d3.mean(data, (d: any) => kernel(t - d[x])) as number]);
+    }
+
+    protected normalize(kde: [number, number][]): [number, number][] {
+        const total = d3.sum(kde, (d) => d[1]);
+        return kde.map((d) => [d[0], d[1]! / total]);    
+    }
+
+    protected epanechnikov(bandwidth: number): Kernel {
+        return (x: number) => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
     }
 }
 

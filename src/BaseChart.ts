@@ -4,6 +4,8 @@ import Tooltip, { TooltipFormatter } from './Tooltip';
 abstract class BaseChart {
     protected svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
 
+    protected defs: d3.Selection<SVGDefsElement, unknown, HTMLElement, any>;
+
     protected selector: string;
 
     protected width: number;
@@ -64,7 +66,7 @@ abstract class BaseChart {
         return this;
     }
 
-    protected buildSvg() {
+    protected buildSvg(): d3.Selection<SVGGElement, unknown, HTMLElement, any> {
         const { margin, yLabel, xLabel } = this.config;
         const { selector, width, height } = this;
 
@@ -77,12 +79,15 @@ abstract class BaseChart {
         const svg = d3.select(selector)
             .append('svg')
             .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr('height', height + margin.top + margin.bottom);
+
+        this.defs = svg.append('defs');
+
+        const svgG = svg.append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
         if (yLabel) {
-            svg.append('text')
+            svgG.append('text')
                 .text(yLabel)
                 .attr('transform', 'rotate(-90)')
                 .attr('y', 0 - margin.left)
@@ -94,7 +99,7 @@ abstract class BaseChart {
         
 
         if (xLabel) {
-            svg.append('text')
+            svgG.append('text')
                 .text(xLabel)
                 .attr('y', this.height + 17)
                 .attr('x', width / 2)
@@ -103,7 +108,7 @@ abstract class BaseChart {
                 .style('text-anchor', 'middle');
         }
 
-        return svg;
+        return svgG;
     }
 
     protected getTooltip(): Tooltip | null {
@@ -132,11 +137,14 @@ abstract class BaseChart {
     }
 
     protected addHorizontalGridlines(yScale: d3.AxisScale<d3.AxisDomain>) {
+        let g = this.svg.select<SVGGElement>('.grid');
         const yAxis = d3.axisLeft(yScale);
-        const g = this.svg.append('g')			
-            .attr('class', 'grid')
-            .call(yAxis.tickSize(-this.width).tickFormat(() => ''));
-
+            
+        if (g.nodes().length === 0) {
+            g = this.svg.append('g')			
+                .attr('class', 'grid')
+                .call(yAxis.tickSize(-this.width).tickFormat(() => ''));    
+        }
 
         g.selectAll('line')
             .attr('transform', 'translate(1, 0)')
