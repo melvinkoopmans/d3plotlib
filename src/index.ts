@@ -7,9 +7,11 @@ import PieChart from './PieChart';
 import Boxplot from './Boxplot';
 import TimeSeries from './TimeSeries';
 import Network, { NetworkStruct } from './Network';
+import KDE from './KDE';
 
 export {
     Barplot, GroupedBarplot, Heatmap, 
     Histogram, Lineplot, PieChart,
-    Boxplot, TimeSeries, Network, NetworkStruct
+    Boxplot, TimeSeries, Network, 
+    NetworkStruct, KDE,
 }
