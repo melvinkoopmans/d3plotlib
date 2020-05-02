@@ -67,8 +67,9 @@ class KDE extends BaseChart {
 
         const defs = d3.select(this.selector).select('svg').append('defs');
 
+        const maskId = `auc-clip-${this.selector.replace('#', '')}`;
         const mask = defs.append('clipPath')
-            .attr('id', 'auc-clip')
+            .attr('id', maskId)
             .append('rect')
             .attr('x', 0)
             .attr('y', 0)
@@ -79,7 +80,7 @@ class KDE extends BaseChart {
         this.svg.append('path')
             .data([kernel])
             .attr('class', 'area')
-            .attr('clip-path', 'url(#auc-clip)')
+            .attr('clip-path', `url(#${maskId})`)
             .attr('d', area as any)
             .attr('fill', '#03A49E')
             .attr('opacity', 0.3);
