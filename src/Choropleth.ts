@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import BaseChart from './BaseChart';
+import ColorBox from './ColorBox';
 
 class Choropleth extends BaseChart {
     plot(data: Map<string, number>, dataAccessor: string, topology: any, topologyAccessor: string) {
@@ -48,12 +49,8 @@ class Choropleth extends BaseChart {
                 .on('mousemove', tooltip.getMoveHandler((d: any) => d.properties['GM_CODE']));
         }
 
-        // svg.append('path')
-        //     .datum(topojson.mesh(topology, topology.objects.states, (a, b) => a !== b))
-        //     .attr('fill', 'none')
-        //     .attr('stroke', 'white')
-        //     .attr('stroke-linejoin', 'round')
-        //     .attr('d', path);
+        const colorBox = new ColorBox([200, 20], color, true)
+            .create(this.svg);
     }
 }
 
