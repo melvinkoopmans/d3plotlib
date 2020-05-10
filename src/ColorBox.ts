@@ -8,7 +8,7 @@ class ColorBox {
 
     private ticks: boolean;
 
-    private isVertical: boolean = true;
+    private isVertical: boolean = false;
 
     constructor(size: [number, number], colors: ScaleLinear<string, number> | ScaleQuantize<string>, ticks: boolean = false) {
         this.size = size;
