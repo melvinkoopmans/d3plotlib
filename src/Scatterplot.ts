@@ -26,16 +26,17 @@ class Scatterplot extends BaseChart {
 
     plot(data: [number, number, number?][]) {
         const { svg, width, height } = this;
+        const { xTicks, yTicks} = this.config;
         
-        const xDomain = d3.extent(data.map((d) => d[0])) as [number, number];
+        const xDomain = d3.extent(data.map((d) => 1.05 * d[0])) as [number, number];
         const xScale = d3.scaleLinear()
             .domain(xDomain)
             .range([0, width]);
         this.state.xInitialDomain = xDomain;
         this.state.xScale = xScale;
 
-        const yDomain = d3.extent(data.map((d) => d[1])) as [number, number];
-        const yScale = d3.scaleLinear()
+        const yDomain = d3.extent(data.map((d) => 1.05 * d[1])) as [number, number];
+        const yScale = d3.scaleLinear() 
             .domain(yDomain)
             .range([height, 0]);
         this.state.yInitialDomain = yDomain;
@@ -47,17 +48,27 @@ class Scatterplot extends BaseChart {
 
         const xAxis = svg.append('g')
             .attr('transform', `translate(0, ${height})`)
-            .call(d3.axisBottom(xScale)); 
+            .call(d3.axisBottom(xScale).ticks(xTicks)); 
         this.state.xAxis = xAxis;
 
         const yAxis = svg.append('g')
-            .call(d3.axisLeft(yScale));
+            .call(d3.axisLeft(yScale).ticks(yTicks));
         this.state.yAxis = yAxis;
 
         this.addHorizontalGridlines(yScale as any);
         this.addVerticalGridlines(xScale as any);
 
-        svg.append('g').selectAll('circle')
+        this.defs!.append('svg:clipPath')
+            .attr('id', 'clip')
+            .append('svg:rect')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('x', 0)
+            .attr('y', 0);
+
+        svg.append('g')
+            .attr('clip-path', 'url(#clip)')
+            .selectAll('circle')
             .data(data).enter()
             .append('circle')
                 .attr('r', (d: any) => 4 * sizeScale(d[2] || 1))
@@ -91,6 +102,7 @@ class Scatterplot extends BaseChart {
             return;
         }
 
+        const { xTicks, yTicks } = this.config;
         const extent = d3.event.selection;
 
         if (!extent) {
@@ -107,8 +119,8 @@ class Scatterplot extends BaseChart {
         this.state.xScale = xScale;
         this.state.yScale=  yScale;
     
-        xAxis.transition().duration(1000).call(d3.axisBottom(xScale));
-        yAxis.transition().duration(1000).call(d3.axisLeft(yScale));
+        xAxis.transition().duration(1000).call(d3.axisBottom(xScale).ticks(xTicks));
+        yAxis.transition().duration(1000).call(d3.axisLeft(yScale).ticks(yTicks));
         this.svg
             .selectAll('circle')
             .transition().duration(1000)

@@ -15,6 +15,8 @@ abstract class BaseChart {
     protected config: {
         yLabel: string | null,
         xLabel: string | null,
+        xTicks: number | (string | number)[],
+        yTicks: number | (string | number)[],
         colors: string[],
         margin: {
             top: number,
@@ -26,6 +28,8 @@ abstract class BaseChart {
     } = {
         yLabel: null,
         xLabel: null,
+        xTicks: 5,
+        yTicks: 5,
         colors: [],
         margin: {
             top: 10,
@@ -58,6 +62,16 @@ abstract class BaseChart {
 
     xLabel(label: string): this {
         this.config.xLabel = label;
+        return this;
+    }
+
+    xTicks(ticks: number | (string | number)[]): this {
+        this.config.xTicks = ticks;
+        return this;
+    }
+
+    yTicks(ticks: number | (string | number)[]): this {
+        this.config.yTicks=  ticks;
         return this;
     }
 
