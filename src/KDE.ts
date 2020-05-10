@@ -78,7 +78,7 @@ class KDE extends BaseChart {
             .y1((d) => yScale(d[1]));
 
         const maskId = `auc-clip-${this.selector.replace('#', '')}-${plotCalls}`;
-        const mask = defs.append('clipPath')
+        const mask = defs!.append('clipPath')
             .attr('id', maskId)
             .append('rect')
             .attr('x', 0)

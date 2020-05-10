@@ -9,10 +9,12 @@ import TimeSeries from './TimeSeries';
 import Network, { NetworkStruct } from './Network';
 import KDE from './KDE';
 import Scatterplot from './Scatterplot';
+import Choropleth from './Choropleth';
 
 export {
     Barplot, GroupedBarplot, Heatmap, 
     Histogram, Lineplot, PieChart,
     Boxplot, TimeSeries, Network, 
     NetworkStruct, KDE, Scatterplot,
+    Choropleth,
 }

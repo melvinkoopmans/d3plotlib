@@ -54,7 +54,7 @@ class GroupedBarplot extends BaseChart {
             .append('g')
                 .attr('transform', (d: any) => `translate(${xScale(d[groupBy])}, 0)`)
             .selectAll('rect')
-            .data((d) => subgroups.map((key) => ({ key, value: d[key] })))
+            .data((d: any) => subgroups.map((key) => ({ key, value: d[key] })))
             .enter().append('rect')
                 .attr('x', (d) => xSubgroup(d.key)!)
                 .attr('y', this.height)
