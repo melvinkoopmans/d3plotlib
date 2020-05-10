@@ -39,7 +39,7 @@ class Barplot extends BaseChart {
 
         const { xScale } = this.getXAxis(data);
         if (isHorizontal) {
-            this.addVerticalGridlines(xScale as any, x);
+            this.addVerticalGridlines(xScale as any);
         }
 
         const color = this.getColorScheme(xScale as any);

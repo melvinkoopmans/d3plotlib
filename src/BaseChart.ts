@@ -4,7 +4,7 @@ import Tooltip, { TooltipFormatter } from './Tooltip';
 abstract class BaseChart {
     protected svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
 
-    protected defs: d3.Selection<SVGDefsElement, unknown, HTMLElement, any>;
+    protected defs: d3.Selection<SVGDefsElement, unknown, HTMLElement, any> | undefined;
 
     protected selector: string;
 
@@ -155,15 +155,16 @@ abstract class BaseChart {
         g.selectAll('path').remove();
     }
 
-    protected addVerticalGridlines(xScale: d3.AxisScale<d3.AxisDomain>, xAccessor: string) {
+    protected addVerticalGridlines(xScale: d3.AxisScale<d3.AxisDomain>) {
         const xAxis = d3.axisBottom(xScale);
         const g = this.svg.append('g')
             .attr('class', 'grid')
             .call(xAxis.tickSize(this.height).tickFormat(() => ''));
 
         g.selectAll('line')
-            .attr('x', (d: any) => xScale(d[xAccessor!])!)
+            .attr('x', (d: any) => xScale(d)!)
             .attr('stroke', '#DDD')
+            .attr('stroke-dasharray', '2,2');
         
         g.selectAll('.tick:first-of-type').remove();
 

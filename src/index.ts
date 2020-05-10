@@ -8,10 +8,11 @@ import Boxplot from './Boxplot';
 import TimeSeries from './TimeSeries';
 import Network, { NetworkStruct } from './Network';
 import KDE from './KDE';
+import Scatterplot from './Scatterplot';
 
 export {
     Barplot, GroupedBarplot, Heatmap, 
     Histogram, Lineplot, PieChart,
     Boxplot, TimeSeries, Network, 
-    NetworkStruct, KDE,
+    NetworkStruct, KDE, Scatterplot,
 }
