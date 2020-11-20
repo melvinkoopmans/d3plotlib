@@ -1,5 +1,5 @@
 {
-  "name": "d3plotlib",
+  "name": "@yardinternet/d3plotlib",
   "version": "0.0.0",
   "description": "High-level API on top of D3.js for creating plots and data visualisations",
   "main": "dist/index.js",
@@ -8,6 +8,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/melvinkoopmans/d3plotlib.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/yardinternet"
   },
   "author": "Melvin Koopmans",
   "license": "ISC",

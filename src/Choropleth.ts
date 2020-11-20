@@ -50,6 +50,7 @@ class Choropleth extends BaseChart {
         }
 
         const colorBox = new ColorBox([200, 20], color, true)
+            .vertical()
             .create(this.svg);
     }
 }
