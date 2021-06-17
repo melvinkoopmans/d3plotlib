@@ -1,6 +1,6 @@
 {
   "name": "@melvinkoopmans/d3plotlib",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "High-level API on top of D3.js for creating plots and data visualisations",
   "main": "dist/index.js",
   "types": "dist/",
