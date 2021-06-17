@@ -6,22 +6,24 @@ class Barplot extends BaseChart {
         isHorizontal: boolean,
         xAccessor: string,
         yAccessor: string,
+        animated: boolean,
     } = {
         isHorizontal: false,
         xAccessor: 'x',
         yAccessor: 'y',
+        animated: false,
     }
 
     plot(data: any, x: string, y: string): void {
         const { height } = this;
         const { tooltip } = this.config;
-        const { yAccessor, isHorizontal } = this.barplotConfig;
+        const { yAccessor, isHorizontal, animated } = this.barplotConfig;
 
         this.barplotConfig.xAccessor = isHorizontal ? x : x;
         this.barplotConfig.yAccessor = isHorizontal ? y : y;
 
         const { yAxis, yScale } = this.getYAxis(data);
-        
+
         if (!this.isAutoAdjusted) {
             this.autoAdjust(yAxis);
             this.plot(data, x, y);
@@ -29,7 +31,7 @@ class Barplot extends BaseChart {
         }
 
         yAxis.selectAll('.tick line').remove();
-  
+
         if (!isHorizontal) {
             this.addHorizontalGridlines(yScale);
             yAxis.selectAll('path').remove();
@@ -46,19 +48,23 @@ class Barplot extends BaseChart {
 
         let bars: d3.Selection<SVGRectElement, unknown, SVGElement, unknown>;
         const domainLength = xScale.domain().length;
-        
+
         if (isHorizontal) {
             bars = this.svg.selectAll('rect').data(data).enter()
                 .append('rect')
                 .attr('x', 1)
                 .attr('y', (d: any) => yScale(d[x]))
-                .attr('height', yScale.bandwidth()) 
+                .attr('height', yScale.bandwidth())
                 .attr('width', 0)
                 .attr('fill', (d: any) => color(d[x]))
 
-            bars.transition()
-                .ease(d3.easeElastic).delay((d, i) => i * (700 / domainLength)).duration(1250)
-                .attr('width', (d: any) => xScale(d[y])! - 1);
+            if (animated) {
+                bars.transition()
+                    .ease(d3.easeElastic).delay((d, i) => i * (700 / domainLength)).duration(1250)
+                    .attr('width', (d: any) => xScale(d[y])! - 1);
+            } else {
+                bars.attr('width', (d: any) => xScale(d[y])! - 1);
+            }
         } else {
             bars = this.svg.selectAll('rect').data(data).enter()
                 .append('rect')
@@ -68,10 +74,16 @@ class Barplot extends BaseChart {
                 .attr('height', 0)
                 .attr('fill', (d: any) => color(d[x]));
 
-            bars.transition()
-                .ease(d3.easeElastic).delay((d, i) => i * (700 / domainLength)).duration(1250)
-                .attr('y', (d: any) => yScale(d[y])!)
-                .attr('height', (d: any) => height - yScale(d[y])!);
+            if (animated) {
+                bars.transition()
+                    .ease(d3.easeElastic).delay((d, i) => i * (700 / domainLength)).duration(1250)
+                    .attr('y', (d: any) => yScale(d[y])!)
+                    .attr('height', (d: any) => height - yScale(d[y])!);
+            } else {
+                bars
+                  .attr('y', (d: any) => yScale(d[y])!)
+                  .attr('height', (d: any) => height - yScale(d[y])!);
+            }
         }
 
         if (tooltip) {
@@ -84,6 +96,11 @@ class Barplot extends BaseChart {
 
     horizontal(): Barplot {
         this.barplotConfig.isHorizontal = true;
+        return this;
+    }
+
+    animate(): Barplot {
+        this.barplotConfig.animated = true;
         return this;
     }
 
@@ -101,7 +118,7 @@ class Barplot extends BaseChart {
                 .domain(data.map((d: any) => d[xAccessor!]))
                 .padding(0.2);
         }
-    
+
         const xAxis = this.svg.append("g")
             .attr("transform", `translate(0, ${this.height})`)
             .call(d3.axisBottom(xScale as any));
@@ -131,7 +148,7 @@ class Barplot extends BaseChart {
                 .domain([0, d3.max(data, (d: any) => 1.1 * d[yAccessor!] as number)!])
                 .range([this.height, 0]);
         }
-    
+
         const yAxis = this.svg.append('g')
             .call(d3.axisLeft(yScale));
 

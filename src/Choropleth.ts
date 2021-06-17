@@ -26,27 +26,27 @@ class Choropleth extends BaseChart {
         const values: number[] = [];
         data.forEach((d) => values.push(d));
         const domain = d3.extent(values) as [number, number];
-        
+
         const color = d3.scaleQuantize<string>()
             .domain(domain)
             .range(d3.schemeBlues[9]);
 
-        const paths = svg.append('g')
-            .selectAll('path')
-            .data(topojson.feature(topology, topology.objects[topologyAccessor]).features)
-            .enter()
-            .append('path')
-                .attr('fill', (d: any) => color(data.get(d.properties[dataAccessor]) || domain[0]))
-                .attr('stroke', '#CCC')
-                .attr('stroke-linejoin', 'round')
-                .attr('stroke-width', 0.5)
-                .attr('d', path);
+        // const paths = svg.append('g')
+        //     .selectAll('path')
+        //     .data((topojson.feature(topology, topology.objects[topologyAccessor]) as any).features)
+        //     .enter()
+        //     .append('path')
+        //         .attr('fill', (d: any) => color(data.get(d.properties[dataAccessor]) || domain[0]))
+        //         .attr('stroke', '#CCC')
+        //         .attr('stroke-linejoin', 'round')
+        //         .attr('stroke-width', 0.5)
+        //         .attr('d', path);
 
         if (tooltip) {
-            paths
-                .on('mouseover', tooltip.getOverHandler())
-                .on('mouseleave', tooltip.getLeaveHandler())
-                .on('mousemove', tooltip.getMoveHandler((d: any) => d.properties['GM_CODE']));
+            // paths
+            //     .on('mouseover', tooltip.getOverHandler())
+            //     .on('mouseleave', tooltip.getLeaveHandler())
+            //     .on('mousemove', tooltip.getMoveHandler((d: any) => d.properties['GM_CODE']));
         }
 
         const colorBox = new ColorBox([200, 20], color, true)
